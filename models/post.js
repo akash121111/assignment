@@ -8,7 +8,8 @@ const PostSchema = new mongoose.Schema(
 		},
 
 		description: {
-			type: String
+			type: String,
+			required: [ true, 'please provide post title' ]
 		},
 
 		like: [ { type: mongoose.Schema.Types.ObjectId, ref: 'users' } ],

@@ -9,8 +9,6 @@ const client = new okta.Client({
 	token: '00zO-YXHDg1gb-r9D45mt002J0aOXzwjJbdYKs6hjK'
 });
 
-const title = 'Create an account';
-
 router.get('/', (req, res, next) => {
 	if (req.userinfo) {
 		res.json('you are already login');

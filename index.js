@@ -6,8 +6,7 @@ const session = require('express-session');
 const { ExpressOIDC } = require('@okta/oidc-middleware');
 const dotenv = require('dotenv');
 const okta = require('./okta');
-const registrationRouter = require('./routes/user');
-const profileRouter = require('./routes/profile');
+const mongoose = require('mongoose');
 const app = express();
 
 const oidc = new ExpressOIDC({
@@ -18,7 +17,23 @@ const oidc = new ExpressOIDC({
 	redirect_uri: 'localhost:6073/callback',
 	scope: 'openid profile'
 });
-// listening port
+
+//routes
+
+const registrationRouter = require('./routes/user');
+const profileRouter = require('./routes/profile');
+const postRouter = require('./routes/post');
+
+// database connection
+mongoose.Promise = global.Promise;
+mongoose.connect(
+	'mongodb+srv://codebreaker:Akash123@cluster0.h88js.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
+	{ useNewUrlParser: true, useUnifiedTopology: true },
+	function(err) {
+		if (err) console.log(err);
+		console.log('database is connected');
+	}
+);
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -43,6 +58,10 @@ app.get('/', (req, res) => {
 });
 
 app.use('/profile', oidc.ensureAuthenticated(), profileRouter);
+
+app.use('/api/v1/post', postRouter);
+
+// listening port
 
 const PORT = process.env.PORT || 6073;
 app.listen(PORT, async () => {
