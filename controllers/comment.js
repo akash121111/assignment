@@ -1,4 +1,4 @@
-const Post = require('../models/post');
+const Comment = require('../models/post');
 
 //@desc     get post
 //@routes   get /api/v1/post/
@@ -98,21 +98,50 @@ exports.getAllPost = async (req, res, next) => {
 	}
 };
 
-//@desc     create post
-//@routes   POST /api/v1/post/
+//@desc     create comment
+//@routes   POST /api/v1/comment/:id
 //@access   private
-exports.createPost = async (req, res, next) => {
+exports.createComment = async (req, res, next) => {
 	try {
-		const newspost = new Post(req.body);
-		newspost.author = req.token;
+		const newcomment = new Comment(req.body);
+		newcomment.author = req.token;
 
-		newspost
+		newcomment
 			.save()
-			.then((post) => {
+			.then((comment) => {
 				res.status(201).json({
 					status: 201,
-					message: 'post sucessfully creted',
-					data: post
+					message: 'post commment creted',
+					data: comment
+				});
+			})
+			.catch((err) => {
+				res.status(400).json({
+					status: 400,
+					message: err
+				});
+			});
+	} catch (err) {
+		console.log(err);
+		res.json({ message: err });
+	}
+};
+
+//@desc     create comment on comment
+//@routes   POST /api/v1/comment/:postid/:commentid
+//@access   private
+exports.createComment = async (req, res, next) => {
+	try {
+		const newcomment = new Comment(req.body);
+		newcomment.author = req.token;
+
+		newcomment
+			.save()
+			.then((comment) => {
+				res.status(201).json({
+					status: 201,
+					message: 'post commment creted',
+					data: comment
 				});
 			})
 			.catch((err) => {
@@ -152,17 +181,17 @@ exports.editPost = async (req, res, next) => {
 	}
 };
 
-//@desc     delete post
-//@routes   DELETE /api/v1/post/
+//@desc     delete comment
+//@routes   DELETE /api/v1/comment/:id/delete
 //@access   private
 exports.deletePost = async (req, res, next) => {
 	try {
 		var id = req.params.id;
-		await Post.deleteOne({ _id: id, author: req.token })
+		await Comment.deleteOne({ _id: id, user: req.token })
 			.then((data) => {
 				res.status(202).json({
 					success: true,
-					message: 'post succesfully deleted'
+					message: 'comment succesfully deleted'
 				});
 			})
 			.catch((err) => {

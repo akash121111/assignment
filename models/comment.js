@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
 const commentSchema = new mongoose.Schema({
-	_post: { type: mongoose.Schema.Types.ObjectId, ref: 'posts' },
-	// _user: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
+	post: { type: mongoose.Schema.Types.ObjectId, ref: 'posts' },
+	user: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
 	comment: {
 		type: String,
 		posted: { type: Date, default: Date.now },

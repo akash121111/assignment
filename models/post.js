@@ -15,7 +15,8 @@ const PostSchema = new mongoose.Schema(
 		like: [ { type: mongoose.Schema.Types.ObjectId, ref: 'users' } ],
 		dislike: [ { type: mongoose.Schema.Types.ObjectId, ref: 'users' } ],
 
-		comments: [ { type: mongoose.Schema.Types.ObjectId, ref: 'comments' } ]
+		comments: [ { type: mongoose.Schema.Types.ObjectId, ref: 'comments' } ],
+		author: { type: String, ref: 'users' }
 	},
 	{ timestamps: true }
 );

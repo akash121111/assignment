@@ -3,22 +3,39 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const session = require('express-session');
-const { ExpressOIDC } = require('@okta/oidc-middleware');
 const dotenv = require('dotenv');
 const okta = require('./okta');
+
 const mongoose = require('mongoose');
 const app = express();
 
+app.use(
+	session({
+		secret: 'abkitnatimelega',
+		resave: true,
+		saveUninitialized: false
+	})
+);
+
+const { ExpressOIDC } = require('@okta/oidc-middleware');
 const oidc = new ExpressOIDC({
+	appBaseUrl: 'http://localhost:3000',
 	issuer: 'https://dev-03683891.okta.com/oauth2/default',
-	client_id: '0oa1247p2mgU4OQxc5d7',
-	appBaseUrl: 'http://localhost:6073',
-	client_secret: 'Sk8XvYTX7_Tbv7cH-fBMoroptEfmdFydSZVPQcT7',
-	redirect_uri: 'localhost:6073/callback',
-	scope: 'openid profile'
+	client_id: '0oa12wlztjDcXuGKY5d7',
+	client_secret: 'TJWBCtOMU_wP-JunBE938D_zzzEoeGCQOFxVjtsA',
+	redirect_uri: 'http://localhost:3000/callback',
+	scope: 'openid profile',
+	routes: {
+		loginCallback: {
+			path: '/callback'
+		}
+	}
 });
 
 //routes
+
+app.use(oidc.router);
+app.use(okta.middleware);
 
 const registrationRouter = require('./routes/user');
 const profileRouter = require('./routes/profile');
@@ -41,18 +58,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(
-	session({
-		secret: 'abkitnatimelega',
-		resave: true,
-		saveUninitialized: false
-	})
-);
-
-app.use(oidc.router);
-app.use(okta.middleware);
-
-app.use('/register', registrationRouter);
+app.use('/api/v1/user', registrationRouter);
 app.get('/', (req, res) => {
 	res.json('enter the world');
 });
@@ -63,7 +69,7 @@ app.use('/api/v1/post', postRouter);
 
 // listening port
 
-const PORT = process.env.PORT || 6073;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
 	console.log(`app is live at ${PORT}`);
 });
