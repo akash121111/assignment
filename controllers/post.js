@@ -63,7 +63,7 @@ exports.getAllPost = async (req, res, next) => {
 
 		const endIndex = page * limit;
 
-		const total = await post.countDocuments();
+		const total = await Post.countDocuments();
 
 		query = query.skip(startIndex).limit(limit);
 		//pagination query
