@@ -7,7 +7,7 @@ const Post = require('../models/post');
 exports.createComment = async (req, res, next) => {
 	try {
 		const newcomment = new Comment(req.body);
-		newcomment.author = req.token;
+		newcomment.author = req.id;
 		newcomment.post = req.params.pid;
 		newcomment.reply = null;
 
@@ -45,13 +45,17 @@ exports.createComment = async (req, res, next) => {
 exports.createReply = async (req, res, next) => {
 	try {
 		const newcomment = new Comment(req.body);
-		newcomment.author = req.token;
+		newcomment.author = req.id;
 		newcomment.post = req.params.pid;
-		newcomment.reply = req.params.cid;
 
 		newcomment
 			.save()
-			.then((comment) => {
+			.then(async (comment) => {
+				const replycomment = await Comment.findById(req.params.cid);
+				let addcomment = replycomment.replay; //change replay
+				addcomment.push(comment._id);
+				console.log(addcomment);
+				await comment.updateOne({ replay: addcomment });
 				res.status(201).json({
 					status: 201,
 					message: 'commment reply successful',
@@ -101,7 +105,7 @@ exports.editPost = async (req, res, next) => {
 exports.deleteComment = async (req, res, next) => {
 	try {
 		var id = req.params.id;
-		await Comment.deleteOne({ _id: id, user: req.token })
+		await Comment.deleteOne({ _id: id, user: req.id })
 			.then((data) => {
 				res.status(202).json({
 					success: true,

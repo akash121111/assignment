@@ -3,19 +3,11 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const session = require('express-session');
-const dotenv = require('dotenv');
 const okta = require('./okta');
+require('dotenv').config();
 
 const mongoose = require('mongoose');
 const app = express();
-
-app.use(
-	session({
-		secret: 'abkitnatimelega',
-		resave: true,
-		saveUninitialized: false
-	})
-);
 
 const { ExpressOIDC } = require('@okta/oidc-middleware');
 const oidc = new ExpressOIDC({

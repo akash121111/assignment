@@ -4,7 +4,7 @@ const { isUser } = require('../middleware/auth');
 const router = express.Router();
 
 router.post('/create/:pid', isUser, createComment);
-router.post('/reply/:pid/cid', isUser, createReply);
+router.post('/reply/:pid/:cid', isUser, createReply);
 router.delete('/:id', isUser, deleteComment);
 
 module.exports = router;

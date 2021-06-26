@@ -1,5 +1,18 @@
 const Post = require('../models/post');
 
+//@desc     get one post and comment
+//@routes   get /api/v1/post/:id
+//@access   public
+exports.getOnePost = async (req, res, next) => {
+	try {
+		const abc = await Post.findById(req.params.id).populate('comments');
+		res.status(200).json({ status: 200, data: abc });
+	} catch (err) {
+		console.log(err);
+		res.json({ message: err });
+	}
+};
+
 //@desc     get post
 //@routes   get /api/v1/post/
 //@access   public
@@ -171,6 +184,82 @@ exports.deletePost = async (req, res, next) => {
 					message: err
 				});
 			});
+	} catch (err) {
+		console.log(err);
+		res.json({ message: err });
+	}
+};
+
+//@desc     like and dislike post
+//@routes   get /api/v1/post/:id/:likes
+//@access   private
+
+exports.likePost = async (req, res, next) => {
+	try {
+		id = req.params.id;
+		if (req.params.likes == 'like') {
+			const check = Post.findOne({
+				like: req.token
+			});
+
+			if (check == null) {
+				const post = await Post.findById(req.params.id);
+				let like1 = post.like;
+				like1.push(req.token);
+
+				await post.updateOne({ like: like1 });
+				res.status(200).json({
+					success: true,
+					status: 'like',
+					message: 'like update'
+				});
+			}
+		}
+
+		if (req.params.likes == 'dislike') {
+			const check = Post.findOne({
+				dislike: req.token
+			});
+
+			if (check == null) {
+				Video.findOneAndUpdate(
+					{ _id: id },
+					{ $push: { dislike: req.token } },
+					{ safe: true, upsert: true },
+					function(err, model) {
+						if (err) {
+							res.json({ err });
+						}
+						console.log('dislikes add');
+					}
+				);
+			} else {
+				Post.findOneAndUpdate({ _id: id }, { $pull: { like: req.token } }, function(err, model) {
+					if (err) {
+						res.json({ err });
+					}
+					console.log('like delete');
+				});
+
+				Post.findOneAndUpdate(
+					{ _id: id },
+					{ $push: { dislike: req.token } },
+					{ safe: true, upsert: true },
+					function(err, model) {
+						if (err) {
+							res.json({ err });
+						}
+						console.log('dislikes update');
+					}
+				);
+			}
+
+			res.status(200).json({
+				success: true,
+				status: 'dislike',
+				message: 'dislike update'
+			});
+		}
 	} catch (err) {
 		console.log(err);
 		res.json({ message: err });

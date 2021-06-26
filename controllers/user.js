@@ -1,4 +1,6 @@
 const okta = require('@okta/okta-sdk-nodejs');
+const jwt = require('jsonwebtoken');
+const User = require('../models/user');
 const client = new okta.Client({
 	orgUrl: 'https://dev-03683891.okta.com',
 	token: '00TdabhZAXS0ThoBcfiRdbADRm-e8Z9j42_m3E-V58'
@@ -25,9 +27,15 @@ exports.registerUser = async (req, res, next) => {
 				}
 			})
 			.then((data) => {
-				res.cookie('auth', data.id).json({
+				const token = jwt.sign({ id: data.id }, 'sdajkkljdasjklklsdajklsdjlkajklsda', {
+					expiresIn: '24h'
+				});
+				const newUser = new User();
+				newUser.userId = data.id;
+				newUser.save();
+				res.cookie('auth', token).json({
 					user: data.profile,
-					token: data.id
+					token: token
 				});
 			})
 			.catch((err) => {
@@ -47,11 +55,7 @@ exports.loginUser = async (req, res, next) => {
 
 		const data = {
 			username: req.body.email,
-			password: req.body.password,
-			options: {
-				multiOptionalFactorEnroll: false,
-				warnBeforePasswordExpired: false
-			}
+			password: req.body.password
 		};
 
 		axios
